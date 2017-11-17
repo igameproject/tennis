@@ -2,8 +2,13 @@ var canvas;
 var context;
 var ballX = 50; 
 var ballY = 50;
-var speedX = 10;
+var speedX = 9;
 var speedY = 5;
+
+const INITIAL_SPEEDX = 9;
+const MINIMUM_SPEEDY = 4;
+const MAXIMUM_SPEEDY = 8;
+
 
 var player1Score = 0;
 var player2Score = 0;
@@ -12,8 +17,13 @@ var paddle1Y = 250;
 var paddle2Y = 250;
 const PADDLE_HEIGHT = 100;
 const PADDLE_THICKNESS = 10;
-const WINNING_SCORE = 3;
+const WINNING_SCORE = 11;
 var showingWinScreen =false;
+
+
+var ballPaddleHitSound = new soundOverlapsClass("audio/hit");
+var ballWallSound = new soundOverlapsClass("audio/wall");
+var ballMissSound = new soundOverlapsClass("audio/miss");
 
 
 var handleMouseClick = (evt) => {
@@ -71,10 +81,14 @@ var moveEverything = () => {
     if(ballY > paddle1Y  && ballY < paddle1Y + PADDLE_HEIGHT){
       speedX = -speedX;
       var delta = ballY - (paddle1Y + PADDLE_HEIGHT/2);
-      speedY = delta * 0.35;}
+      speedY = delta * 0.35;
+      ballPaddleHitSound.play();
+
+    }
     else{
       player2Score++;
       ballReset();
+      ballMissSound.play();
     }
     
   }
@@ -83,14 +97,18 @@ var moveEverything = () => {
       speedX = -speedX;
       var delta = ballY - (paddle2Y + PADDLE_HEIGHT/2);
       speedY = delta * 0.35;
+      ballPaddleHitSound.play();
     }
     else{
       player1Score++;
       ballReset();
+      ballMissSound.play();
+      
     }
   }
   if(ballY > canvas.height - 10 || ballY < 10){
     speedY = -speedY;
+    ballWallSound.play();
   }
 }
 
@@ -106,13 +124,11 @@ var drawEverything = () => {
   
   if(showingWinScreen) {
 		context.fillStyle = 'white';
-
 		if(player1Score >= WINNING_SCORE) {
 			context.fillText("Player Wins", 320, 200);
 		} else if(player2Score >= WINNING_SCORE) {
 			context.fillText("Computer Wins", 310, 200);
 		}
-
 		context.fillText("Click to Continue", 300, 500);
 		return;
 	}
@@ -139,7 +155,11 @@ var ballReset = () => {
     showingWinScreen = true;
     
   }
-  speedX = -speedX;
+  speedY =   MINIMUM_SPEEDY  + Math.floor(Math.random()*(MINIMUM_SPEEDY + 1));
+  if(speedY<=5){
+    speedY = -speedY;
+  }
+  speedX = INITIAL_SPEEDX;
   ballX = canvas.width/2;
   ballY = canvas.height/2;
 }
