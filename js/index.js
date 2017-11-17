@@ -6,9 +6,11 @@ var speedX = 9;
 var speedY = 5;
 
 const INITIAL_SPEEDX = 9;
+const INITIAL_SPEEDY = 5;
 const MINIMUM_SPEEDY = 4;
 const MAXIMUM_SPEEDY = 8;
 
+var ballSpeedInc = 0.1;
 
 var player1Score = 0;
 var player2Score = 0;
@@ -63,9 +65,9 @@ setInterval(() =>{moveEverything();drawEverything();},1000/framesPerSecond);
 var computerMovement = () => {
   var paddle2YCenter = paddle2Y + (PADDLE_HEIGHT/2);
  if(paddle2YCenter < ballY - 35) {
-		paddle2Y += 6;
+		paddle2Y += 10;
 	} else if(paddle2YCenter > ballY + 35) {
-		paddle2Y -= 6;
+		paddle2Y -= 10;
 	}
 }
 
@@ -77,33 +79,45 @@ var moveEverything = () => {
   ballX += speedX;
   ballY += speedY;
   if(ballX < 10){
+
+  //Ball Movement for left paddle
     
     if(ballY > paddle1Y  && ballY < paddle1Y + PADDLE_HEIGHT){
       speedX = -speedX;
       var delta = ballY - (paddle1Y + PADDLE_HEIGHT/2);
       speedY = delta * 0.35;
       ballPaddleHitSound.play();
+      speedX += ballSpeedInc * speedX/Math.abs(speedX); 
+      
+
 
     }
     else{
       player2Score++;
       ballReset();
       ballMissSound.play();
-    }
-    
+      speedX = INITIAL_SPEEDX;
+      speedY = INITIAL_SPEEDY;
+    }   
   }
+
+  //Ball Movement for right paddle
   if(ballX > canvas.width - 10){
      if(ballY > paddle2Y  && ballY < paddle2Y + PADDLE_HEIGHT){
       speedX = -speedX;
       var delta = ballY - (paddle2Y + PADDLE_HEIGHT/2);
       speedY = delta * 0.35;
       ballPaddleHitSound.play();
+      speedX += ballSpeedInc * speedX/Math.abs(speedX);
+      
     }
     else{
       player1Score++;
       ballReset();
       ballMissSound.play();
-      
+      speedX = INITIAL_SPEEDX;
+      speedY = INITIAL_SPEEDY;
+
     }
   }
   if(ballY > canvas.height - 10 || ballY < 10){
@@ -139,8 +153,6 @@ var drawEverything = () => {
   colorRect("white",canvas.width-PADDLE_THICKNESS,paddle2Y,PADDLE_THICKNESS,PADDLE_HEIGHT);
   //ball
   drawNet();
-  
-  
   
   colorCircle("white",ballX,ballY,10);
   context.font="30px Arial";
